@@ -1,5 +1,6 @@
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
+import { HomePage } from "@/components/HomePage";
 import { LicenseActivation } from "@/components/LicenseActivation";
 import { OnboardingPage } from "@/components/OnboardingPage";
 import { SettingsPage } from "@/components/SettingsPage";
@@ -78,10 +79,8 @@ export default function App() {
         {page === "settings" ? (
           <SettingsPage onClose={() => setPage("home")} />
         ) : (
-          <div className="mx-1 mb-1 flex flex-1 items-center justify-center rounded-xl border-2 border-border bg-background">
-            <p className="text-muted-foreground text-sm">
-              Your app content goes here
-            </p>
+          <div className="mx-1 mb-1 flex flex-1 overflow-hidden rounded-xl border-2 border-border bg-background">
+            <HomePage />
           </div>
         )}
 
