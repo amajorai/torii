@@ -1,0 +1,229 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+    branches:
+      - "release/v*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    name: Release (${{ matrix.name }})
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            args: --target aarch64-apple-darwin
+            name: macOS (Apple Silicon)
+          - platform: macos-latest
+            target: x86_64-apple-darwin
+            args: --target x86_64-apple-darwin
+            name: macOS (Intel)
+          - platform: ubuntu-22.04
+            target: ""
+            args: ""
+            name: Linux
+          - platform: windows-latest
+            target: ""
+            args: ""
+            name: Windows
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version tag
+        id: version
+        shell: bash
+        run: |
+          REF="$GITHUB_REF_NAME"
+          if [[ "$REF" == release/* ]]; then
+            VERSION="${REF#release/}"
+          else
+            VERSION="$REF"
+          fi
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libgtk-3-dev
+
+      - name: Cache Rust build
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Get previous tag
+        id: prev_tag
+        shell: bash
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+
+      - name: Get tag message
+        id: tag_message
+        shell: bash
+        run: |
+          git fetch --tags --force
+          TAG_MSG=$(git for-each-ref refs/tags/${{ steps.version.outputs.tag }} --format='%(contents:subject)' 2>/dev/null | head -1)
+          echo "message=$TAG_MSG" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.tag }}"
+          PREV_TAG="${{ steps.prev_tag.outputs.prev_tag }}"
+          REPO="${{ github.repository }}"
+
+          if [ -n "$PREV_TAG" ]; then
+            COMMITS=$(git log ${PREV_TAG}..HEAD --pretty=format:"%s|%h|%H")
+          else
+            COMMITS=$(git log --pretty=format:"%s|%h|%H")
+          fi
+
+          FEATURES=""
+          FIXES=""
+          CHORES=""
+          OTHER=""
+
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            MSG=$(echo "$line" | cut -d'|' -f1)
+            SHORT_HASH=$(echo "$line" | cut -d'|' -f2)
+            FULL_HASH=$(echo "$line" | cut -d'|' -f3)
+            LINK="- ${MSG} ([${SHORT_HASH}](https://github.com/${REPO}/commit/${FULL_HASH}))"
+            if [[ "$MSG" == feat:* ]] || [[ "$MSG" == feat\(* ]]; then
+              FEATURES="${FEATURES}${LINK}"$'\n'
+            elif [[ "$MSG" == fix:* ]] || [[ "$MSG" == fix\(* ]]; then
+              FIXES="${FIXES}${LINK}"$'\n'
+            elif [[ "$MSG" == chore:* ]] || [[ "$MSG" == chore\(* ]] || [[ "$MSG" == refactor:* ]] || [[ "$MSG" == refactor\(* ]]; then
+              CHORES="${CHORES}${LINK}"$'\n'
+            else
+              OTHER="${OTHER}${LINK}"$'\n'
+            fi
+          done <<< "$COMMITS"
+
+          {
+            echo "body<<EOF"
+            echo "## What's Changed"
+            echo ""
+            if [ -n "$FEATURES" ]; then
+              echo "### Features"
+              echo ""
+              echo "$FEATURES"
+            fi
+            if [ -n "$FIXES" ]; then
+              echo "### Bug Fixes"
+              echo ""
+              echo "$FIXES"
+            fi
+            if [ -n "$OTHER" ]; then
+              echo "### Other Changes"
+              echo ""
+              echo "$OTHER"
+            fi
+            if [ -n "$CHORES" ]; then
+              echo "### Maintenance"
+              echo ""
+              echo "$CHORES"
+            fi
+            if [ -n "$PREV_TAG" ]; then
+              echo ""
+              echo "**Full Changelog**: https://github.com/${REPO}/compare/${PREV_TAG}...${VERSION}"
+            fi
+            echo ""
+            echo "**All Commits**: https://github.com/${REPO}/commits/${VERSION}/"
+            echo ""
+            echo "## Downloads"
+            echo ""
+            echo "| Platform | Download |"
+            echo "|----------|-----------|"
+            echo "| macOS (Apple Silicon) | \`.dmg\` (arm64) |"
+            echo "| macOS (Intel) | \`.dmg\` (x64) |"
+            echo "| Windows | \`.exe\` / \`.msi\` installer |"
+            echo "| Linux | \`.deb\` / \`.AppImage\` |"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: Build and release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          VITE_POLAR_API_URL: ${{ secrets.VITE_POLAR_API_URL }}
+          VITE_POLAR_ORGANIZATION_ID: ${{ secrets.VITE_POLAR_ORGANIZATION_ID }}
+          VITE_POLAR_ORG_SLUG: ${{ secrets.VITE_POLAR_ORG_SLUG }}
+          VITE_POLAR_PURCHASE_URL: ${{ secrets.VITE_POLAR_PURCHASE_URL }}
+          VITE_POLAR_CUSTOMER_PORTAL_URL: ${{ secrets.VITE_POLAR_CUSTOMER_PORTAL_URL }}
+          VITE_POLAR_SERVER_URL: ${{ secrets.VITE_POLAR_SERVER_URL }}
+          VITE_POSTHOG_KEY: ${{ secrets.VITE_POSTHOG_KEY }}
+          VITE_POSTHOG_HOST: ${{ secrets.VITE_POSTHOG_HOST }}
+          VITE_AXIOM_TOKEN: ${{ secrets.VITE_AXIOM_TOKEN }}
+          VITE_AXIOM_DATASET: ${{ secrets.VITE_AXIOM_DATASET }}
+        with:
+          tauriScript: bunx tauri
+          tagName: ${{ steps.version.outputs.tag }}
+          releaseName: "${{ steps.version.outputs.tag }}${{ steps.tag_message.outputs.message && format(' - {0}', steps.tag_message.outputs.message) || '' }}"
+          releaseBody: ${{ steps.changelog.outputs.body }}
+          releaseDraft: false
+          prerelease: ${{ contains(steps.version.outputs.tag, 'beta') || contains(steps.version.outputs.tag, 'alpha') || contains(steps.version.outputs.tag, 'nightly') || contains(steps.version.outputs.tag, 'rc') }}
+          includeUpdaterJson: true
+          args: ${{ matrix.args }}
+
+      - name: Generate and upload checksums
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${{ matrix.target }}" ]; then
+            BUNDLE_DIR="src-tauri/target/${{ matrix.target }}/release/bundle"
+          else
+            BUNDLE_DIR="src-tauri/target/release/bundle"
+          fi
+
+          if [ -d "$BUNDLE_DIR" ]; then
+            cd "$BUNDLE_DIR"
+            find . -type f \( -name "*.dmg" -o -name "*.exe" -o -name "*.msi" -o -name "*.deb" -o -name "*.AppImage" -o -name "*.tar.gz" \) | while read file; do
+              if command -v sha256sum &> /dev/null; then
+                sha256sum "$file" | cut -d' ' -f1 > "${file}.sha256"
+              elif command -v shasum &> /dev/null; then
+                shasum -a 256 "$file" | cut -d' ' -f1 > "${file}.sha256"
+              fi
+            done
+            find . -name "*.sha256" -type f | while read file; do
+              gh release upload "${{ steps.version.outputs.tag }}" "$file" --clobber || true
+            done
+          fi
