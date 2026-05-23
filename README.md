@@ -74,10 +74,34 @@ Three places to update:
 
 The updater pulls from a GitHub Releases endpoint. After renaming:
 
-1. Set `endpoints` in `tauri.conf.json` to your repo's release URL
-2. Generate a keypair: `bun tauri signer generate`
-3. Put the public key in `tauri.conf.json` under `plugins.updater.pubkey`
-4. Set the private key as `TAURI_SIGNING_PRIVATE_KEY` in your CI environment
+1. Set `endpoints` in `tauri.conf.json` to your repo's release URL:
+   ```
+   https://github.com/YOUR_ORG/YOUR_REPO/releases/latest/download/latest.json
+   ```
+
+2. Generate a signing keypair (run once, store the output safely):
+   ```bash
+   bunx tauri signer generate -w ~/.keys/my-app.key -p "" --ci
+   ```
+   This writes two files:
+   - `~/.keys/my-app.key` — private key (never commit this)
+   - `~/.keys/my-app.key.pub` — public key (safe to read, goes in config)
+
+3. Copy the public key into `tauri.conf.json`:
+   ```json
+   "plugins": {
+     "updater": {
+       "pubkey": "<contents of my-app.key.pub>"
+     }
+   }
+   ```
+
+4. Add the private key as a GitHub Actions secret:
+   ```bash
+   gh secret set TAURI_SIGNING_PRIVATE_KEY --repo YOUR_ORG/YOUR_REPO \
+     --body "$(cat ~/.keys/my-app.key)"
+   ```
+   Leave `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` unset if you used `-p ""`.
 
 ## Project structure
 
