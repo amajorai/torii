@@ -1,4 +1,4 @@
-import { Button } from "@repo/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,8 +6,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@repo/ui/dialog";
-import { Input } from "@repo/ui/input";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import {
   ArrowRight,

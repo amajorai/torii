@@ -3,7 +3,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@repo/ui/tooltip";
+} from "@/components/ui/tooltip";
 import { AppWindow } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";

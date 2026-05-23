@@ -1,11 +1,11 @@
-import { Button } from "@repo/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@repo/ui/dialog";
+} from "@/components/ui/dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { RefreshCw, ShieldAlert } from "lucide-react";
 import { useState } from "react";

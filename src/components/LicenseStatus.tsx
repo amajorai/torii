@@ -1,4 +1,4 @@
-import { Button } from "@repo/ui/button";
+import { Button } from "@/components/ui/button";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { LogOut, RefreshCw, ShieldCheck, WifiOff } from "lucide-react";
 import { useCallback } from "react";
