@@ -1,6 +1,7 @@
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { LicenseActivation } from "@/components/LicenseActivation";
+import { OnboardingPage } from "@/components/OnboardingPage";
 import { SettingsPage } from "@/components/SettingsPage";
 import { TitleBar } from "@/components/TitleBar";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -21,7 +22,8 @@ export default function App() {
   const [page, setPage] = useState<Page>("home");
 
   const { isValidated, isValidating, loadStoredLicense } = useLicenseStore();
-  const { loadSettings, isInitialLoadDone } = useAppSettingsStore();
+  const { loadSettings, isInitialLoadDone, onboardingCompleted, setOnboardingCompleted } =
+    useAppSettingsStore();
 
   useEffect(() => {
     loadStoredLicense();
@@ -43,6 +45,15 @@ export default function App() {
     return (
       <ThemeProvider>
         <LicenseActivation />
+        <Toaster />
+      </ThemeProvider>
+    );
+  }
+
+  if (!onboardingCompleted) {
+    return (
+      <ThemeProvider>
+        <OnboardingPage onComplete={() => setOnboardingCompleted(true)} />
         <Toaster />
       </ThemeProvider>
     );
