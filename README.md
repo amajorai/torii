@@ -1,4 +1,4 @@
-# Torii
+# Torii ⛩️
 
 A production-ready Tauri v2 + React 19 desktop app shell with licensing, analytics, auto-updates, and secure storage baked in.
 
