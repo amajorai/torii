@@ -29,9 +29,12 @@ export const POLAR_CONFIG = {
   purchaseUrl: import.meta.env.VITE_POLAR_PURCHASE_URL || "https://polar.sh",
 
   /**
-   * Checkout URL with launch discount pre-applied
+   * Checkout URL, optionally with a discount code pre-applied
+   * Set VITE_POLAR_DISCOUNT_CODE to append ?discount_code=... automatically
    */
-  checkoutUrl: `${import.meta.env.VITE_POLAR_PURCHASE_URL || "https://polar.sh"}${(import.meta.env.VITE_POLAR_PURCHASE_URL || "https://polar.sh").includes("?") ? "&" : "?"}discount_code=OTLFLX8T`,
+  checkoutUrl: import.meta.env.VITE_POLAR_DISCOUNT_CODE
+    ? `${import.meta.env.VITE_POLAR_PURCHASE_URL || "https://polar.sh"}${(import.meta.env.VITE_POLAR_PURCHASE_URL || "https://polar.sh").includes("?") ? "&" : "?"}discount_code=${import.meta.env.VITE_POLAR_DISCOUNT_CODE}`
+    : import.meta.env.VITE_POLAR_PURCHASE_URL || "https://polar.sh",
 
   /**
    * Polar embed checkout URL (buy.polar.sh format for the in-app overlay)
