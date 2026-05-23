@@ -2,6 +2,18 @@
 
 A production-ready Tauri v2 + React 19 desktop app shell with licensing, analytics, auto-updates, and secure storage baked in.
 
+---
+
+## Built from Backstage
+
+Backstage is a desktop app for AI-powered content creation — carousel generation, image editing, and YouTube analytics. After shipping it with a full licensing system, encrypted storage, SQLite migrations, and license-gated auto-updates, every new Tauri project needed the same plumbing rebuilt from scratch.
+
+Torii is the extracted boilerplate. Everything that was painful to get right the first time — the Polar license flow, device activation, AES-256-GCM key storage, the migration pipeline, the version gate, onboarding — lives here so it never has to be rebuilt again.
+
+[github.com/amajorai/backstage](https://github.com/amajorai/backstage)
+
+---
+
 ## Stack
 
 - **Frontend**: React 19, TypeScript, Tailwind CSS v4, Zustand, Vite
@@ -80,6 +92,7 @@ src/
     TitleBar.tsx           # Custom window chrome (draggable, close/min/max)
     SettingsPage.tsx       # General / License / Storage / Updates / Privacy tabs
     LicenseActivation.tsx  # Polar license key entry
+    OnboardingPage.tsx     # 4-step onboarding (welcome, appearance, privacy, done)
     VersionGateModal.tsx   # Blocks launch when running past license expiry
     CustomerPortalDialog.tsx
   stores/
