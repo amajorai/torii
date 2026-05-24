@@ -8,6 +8,10 @@ A production-ready Tauri v2 + React 19 desktop app shell with licensing, analyti
 [![Issues](https://shieldcn.dev/github/issues/amajorai/torii.svg)](https://github.com/amajorai/torii/issues)
 [![Release](https://shieldcn.dev/github/release/amajorai/torii.svg)](https://github.com/amajorai/torii/releases)
 
+[![Windows](https://shieldcn.dev/badge/Windows-Download-blue.svg?logo=windows)](https://github.com/amajorai/torii/releases/latest)
+[![macOS](https://shieldcn.dev/badge/macOS-Download-black.svg?logo=apple)](https://github.com/amajorai/torii/releases/latest)
+[![Linux](https://shieldcn.dev/badge/Linux-Download-orange.svg?logo=linux)](https://github.com/amajorai/torii/releases/latest)
+
 ## Built from Backstage
 
 Backstage is a desktop app for AI-powered content creation — carousel generation, image editing, and YouTube analytics. After shipping it with a full licensing system, encrypted storage, SQLite migrations, and license-gated auto-updates, every new Tauri project needed the same plumbing rebuilt from scratch.
