@@ -2,6 +2,12 @@
 
 A production-ready Tauri v2 + React 19 desktop app shell with licensing, analytics, auto-updates, and secure storage baked in.
 
+[![Stars](https://shieldcn.dev/github/stars/amajorai/torii.svg)](https://github.com/amajorai/torii)
+[![Forks](https://shieldcn.dev/github/forks/amajorai/torii.svg)](https://github.com/amajorai/torii)
+[![License](https://shieldcn.dev/github/license/amajorai/torii.svg)](https://github.com/amajorai/torii)
+[![Issues](https://shieldcn.dev/github/issues/amajorai/torii.svg)](https://github.com/amajorai/torii/issues)
+[![Release](https://shieldcn.dev/github/release/amajorai/torii.svg)](https://github.com/amajorai/torii/releases)
+
 ## Built from Backstage
 
 Backstage is a desktop app for AI-powered content creation — carousel generation, image editing, and YouTube analytics. After shipping it with a full licensing system, encrypted storage, SQLite migrations, and license-gated auto-updates, every new Tauri project needed the same plumbing rebuilt from scratch.
@@ -149,3 +155,13 @@ Call the Tauri commands via the wrappers in `src/lib/secure-storage.ts` (or add 
 
 ### Add settings
 Add fields to `use-app-settings-store.ts`. The store auto-persists to Tauri plugin-store on every setter call.
+
+## Star History
+
+<a href="https://www.star-history.com/#amajorai/torii&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=amajorai/torii&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=amajorai/torii&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=amajorai/torii&type=Date" />
+ </picture>
+</a>
