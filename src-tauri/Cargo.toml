@@ -1,12 +1,12 @@
 [package]
-name = "my-tauri-app"
+name = "torii"
 version = "0.1.0"
-description = "My Tauri App"
-authors = ["you"]
+description = "Torii"
+authors = ["Jia Wei Ng"]
 edition = "2021"
 
 [lib]
-name = "my_tauri_app_lib"
+name = "torii_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]
