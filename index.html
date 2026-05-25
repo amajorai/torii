@@ -41,5 +41,13 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('%VITE_USERJOT_ID%') {
+        var s = document.createElement('script');
+        s.src = 'https://widget.userjot.com/widget/%VITE_USERJOT_ID%.js';
+        s.async = true;
+        document.head.appendChild(s);
+      }
+    </script>
   </body>
 </html>

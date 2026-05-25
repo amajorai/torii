@@ -128,9 +128,9 @@ All sounds respect the sounds toggle in Settings → General.
 
 Integrated in `SettingsPage.tsx`. Surfaces a feedback button that opens the UserJot panel.
 
+- Set `VITE_USERJOT_ID` in `.env` — the widget script loads automatically; leave it empty to disable
 - Theme synced to the widget on every theme change (`uj.setTheme(resolved)`)
 - Triggered via `uj.showWidget()`
-- Drop in your UserJot script tag and the integration is live
 
 ### Logging
 
@@ -192,8 +192,6 @@ Integrated in `SettingsPage.tsx`. Surfaces a feedback button that opens the User
 | `compose-refs.ts` | React ref composition |
 | `as-child.ts` | `asChild` pattern for component composition |
 
----
-
 ## Prerequisites
 
 - [Rust](https://rustup.rs/) (stable)
@@ -228,6 +226,8 @@ VITE_POLAR_ORGANIZATION_ID  # from polar.sh dashboard
 VITE_POLAR_ORG_SLUG         # your org slug
 VITE_POLAR_CUSTOMER_PORTAL_URL
 VITE_POLAR_PURCHASE_URL     # your product page
+
+VITE_USERJOT_ID             # optional, for feedback widget
 
 VITE_AXIOM_TOKEN            # optional, for log shipping
 VITE_AXIOM_DATASET          # optional
