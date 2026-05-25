@@ -63,7 +63,6 @@ VITE_POLAR_ORGANIZATION_ID  # from polar.sh dashboard
 VITE_POLAR_ORG_SLUG         # your org slug
 VITE_POLAR_CUSTOMER_PORTAL_URL
 VITE_POLAR_PURCHASE_URL     # your product page
-VITE_POLAR_SERVER_URL       # your Hono/API server URL
 
 VITE_AXIOM_TOKEN            # optional, for log shipping
 VITE_AXIOM_DATASET          # optional

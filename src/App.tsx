@@ -6,6 +6,7 @@ import { OnboardingPage } from "@/components/OnboardingPage";
 import { SettingsPage } from "@/components/SettingsPage";
 import { TitleBar } from "@/components/TitleBar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { VersionGateModal } from "@/components/VersionGateModal";
 import { useWindowBounds } from "@/hooks/use-window-bounds";
@@ -65,14 +66,14 @@ export default function App() {
       <div className="flex h-screen flex-col bg-muted">
         <TitleBar
           actions={
-            <button
+            <Button
               aria-label="Open settings"
-              className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               onClick={() => setPage("settings")}
-              type="button"
+              size="icon-sm"
+              variant="ghost"
             >
               <Settings className="size-4" />
-            </button>
+            </Button>
           }
         />
 

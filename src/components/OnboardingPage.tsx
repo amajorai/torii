@@ -1,4 +1,4 @@
-import { AppWindow, ChevronLeft, ChevronRight, Moon, Sun } from "lucide-react";
+import { ChevronLeft, ChevronRight, Moon, Sun } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -111,8 +111,8 @@ export function OnboardingPage({ onComplete }: OnboardingPageProps) {
 function WelcomeStep() {
   return (
     <div className="flex max-w-sm flex-col items-center gap-6 text-center">
-      <div className="flex size-20 items-center justify-center rounded-2xl bg-foreground/5">
-        <AppWindow className="size-10 text-foreground/80" strokeWidth={1.5} />
+      <div className="flex size-20 items-center justify-center rounded-2xl bg-foreground/5 text-4xl">
+        ⛩️
       </div>
       <div className="space-y-2">
         <h1 className="font-bold text-2xl tracking-tight">Welcome</h1>

@@ -5,18 +5,19 @@ import {
   ArrowLeft,
   Check,
   DoorOpen,
-  GalleryThumbnails,
   Key,
   Loader2,
   TrendingUp,
 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { sileo } from "sileo";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import { CustomerPortalDialog } from "@/components/CustomerPortalDialog";
 import {
   POLAR_EMBED_CHECKOUT_URL,
   usePolarCheckout,
 } from "@/hooks/use-polar-checkout";
+import { POLAR_CONFIG } from "@/lib/polar-config";
 import * as sounds from "@/lib/sounds";
 import { useLicenseStore } from "@/stores/use-license-store";
 
@@ -38,7 +39,6 @@ const BENEFITS = [
 export function LicenseActivation({ onBack }: { onBack?: () => void }) {
   const [view, setView] = useState<"pricing" | "activation">("pricing");
   const [licenseKey, setLicenseKey] = useState("");
-  const [retrieveDialogOpen, setRetrieveDialogOpen] = useState(false);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
   const [conflictKey, setConflictKey] = useState("");
   const { isValidating, validateLicense } = useLicenseStore();
@@ -85,11 +85,7 @@ export function LicenseActivation({ onBack }: { onBack?: () => void }) {
         className="relative flex h-10 shrink-0 items-center pr-[148px] pl-4"
         data-tauri-drag-region=""
       >
-        <GalleryThumbnails
-          className="fill-foreground text-foreground"
-          size={16}
-          strokeWidth={3}
-        />
+        <span className="text-sm leading-none">⛩️</span>
       </div>
 
       {/* Content card */}
@@ -99,7 +95,7 @@ export function LicenseActivation({ onBack }: { onBack?: () => void }) {
             <div className="flex w-full max-w-md flex-col gap-6">
               <div>
                 <h1 className="font-medium text-xl">
-                  Make thumbnails that click
+                  Get started today
                 </h1>
                 <p className="font-medium text-muted-foreground text-xl">
                   One-time payment. Yours forever.
@@ -262,7 +258,7 @@ export function LicenseActivation({ onBack }: { onBack?: () => void }) {
                     className="cursor-pointer bg-transparent p-0 text-foreground hover:underline"
                     onClick={() => {
                       sounds.click();
-                      setRetrieveDialogOpen(true);
+                      openUrl(POLAR_CONFIG.customerPortalUrl);
                     }}
                     type="button"
                   >
@@ -316,21 +312,10 @@ export function LicenseActivation({ onBack }: { onBack?: () => void }) {
           </button>
 
           <div className="absolute left-1/2 -translate-x-1/2">
-            <GalleryThumbnails
-              className="fill-foreground/40 text-foreground/40"
-              size={14}
-              strokeWidth={3}
-            />
+            <span className="text-sm leading-none opacity-40">⛩️</span>
           </div>
         </div>
       </div>
-
-      {/* Retrieve license key dialog */}
-      <CustomerPortalDialog
-        mode="retrieve"
-        onOpenChange={setRetrieveDialogOpen}
-        open={retrieveDialogOpen}
-      />
 
       {/* Already-activated conflict dialog */}
       <CustomerPortalDialog

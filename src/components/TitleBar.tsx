@@ -4,7 +4,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AppWindow } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import * as sounds from "@/lib/sounds";
@@ -66,19 +65,19 @@ export function TitleBar({
                   className="flex items-center justify-center outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   onClick={handleLogoClick}
                 >
-                  <AppWindow
+                  <span
                     className={cn(
-                      "fill-foreground transition-opacity hover:opacity-80 active:opacity-60",
+                      "text-sm leading-none transition-opacity hover:opacity-80 active:opacity-60",
                       bounceKey > 0 && "logo-bounce"
                     )}
                     key={bounceKey}
-                    size={16}
-                    strokeWidth={3}
-                  />
+                  >
+                    ⛩️
+                  </span>
                 </button>
               </TooltipTrigger>
               <TooltipContent align="start" side="bottom">
-                <p className="font-bold text-[10px]">App</p>
+                <p className="font-bold text-[10px]">Torii</p>
               </TooltipContent>
             </Tooltip>
           )}
