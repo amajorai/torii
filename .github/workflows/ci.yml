@@ -12,11 +12,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: blacksmith-4vcpu-ubuntu-2204
+          - os: blacksmith-4vcpu-ubuntu-2404
             name: Linux
-          - os: blacksmith-6vcpu-macos-15
+          - os: blacksmith-6vcpu-macos-latest
             name: macOS
-          - os: blacksmith-4vcpu-windows-2025
+          - os: blacksmith-2vcpu-windows-2025
             name: Windows
 
     runs-on: ${{ matrix.os }}
@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Linux system dependencies
-        if: matrix.os == 'blacksmith-4vcpu-ubuntu-2204'
+        if: matrix.os == 'blacksmith-4vcpu-ubuntu-2404'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
