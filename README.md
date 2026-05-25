@@ -8,9 +8,10 @@ A production-ready Tauri v2 + React 19 desktop app shell with licensing, analyti
 [![Issues](https://shieldcn.dev/github/issues/amajorai/torii.svg)](https://github.com/amajorai/torii/issues)
 [![Release](https://shieldcn.dev/github/release/amajorai/torii.svg)](https://github.com/amajorai/torii/releases)
 
-[![Windows](https://shieldcn.dev/badge/Windows-Download-blue.svg?logo=windows)](https://github.com/amajorai/torii/releases/latest)
+[![CI](https://shieldcn.dev/github/actions/workflow/status/amajorai/torii/ci.yml.svg?variant=secondary)](https://github.com/amajorai/torii/actions)
+[![Windows](https://shieldcn.dev/badge/Windows-Download-black.svg?logo=ri:FaWindows)](https://github.com/amajorai/torii/releases/latest)
 [![macOS](https://shieldcn.dev/badge/macOS-Download-black.svg?logo=apple)](https://github.com/amajorai/torii/releases/latest)
-[![Linux](https://shieldcn.dev/badge/Linux-Download-orange.svg?logo=linux)](https://github.com/amajorai/torii/releases/latest)
+[![Linux](https://shieldcn.dev/badge/Linux-Download-black.svg?logo=linux)](https://github.com/amajorai/torii/releases/latest)
 
 ## Built from Backstage
 
