@@ -19,19 +19,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: blacksmith-6vcpu-macos-latest
+          - platform: macos-latest
             target: aarch64-apple-darwin
             args: --target aarch64-apple-darwin
             name: macOS (Apple Silicon)
-          - platform: blacksmith-6vcpu-macos-latest
+          - platform: macos-latest
             target: x86_64-apple-darwin
             args: --target x86_64-apple-darwin
             name: macOS (Intel)
-          - platform: blacksmith-4vcpu-ubuntu-2404
+          - platform: blacksmith-2vcpu-ubuntu-2404
             target: ""
             args: ""
             name: Linux
-          - platform: blacksmith-2vcpu-windows-2025
+          - platform: windows-latest
             target: ""
             args: ""
             name: Windows
@@ -63,10 +63,10 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'blacksmith-6vcpu-macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Install Linux dependencies
-        if: matrix.platform == 'blacksmith-4vcpu-ubuntu-2404'
+        if: matrix.platform == 'blacksmith-2vcpu-ubuntu-2404'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
