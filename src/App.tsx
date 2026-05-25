@@ -43,19 +43,22 @@ export default function App() {
     );
   }
 
-  if (!isValidated) {
+  if (!onboardingCompleted) {
     return (
       <ThemeProvider>
-        <LicenseActivation />
+        <OnboardingPage
+          isLicenseActive={isValidated}
+          onComplete={() => setOnboardingCompleted(true)}
+        />
         <Toaster />
       </ThemeProvider>
     );
   }
 
-  if (!onboardingCompleted) {
+  if (!isValidated) {
     return (
       <ThemeProvider>
-        <OnboardingPage onComplete={() => setOnboardingCompleted(true)} />
+        <LicenseActivation />
         <Toaster />
       </ThemeProvider>
     );
