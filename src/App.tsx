@@ -67,25 +67,27 @@ export default function App() {
   return (
     <ThemeProvider>
       <div className="flex h-screen flex-col bg-muted">
-        <TitleBar
-          actions={
-            <Button
-              aria-label="Open settings"
-              onClick={() => setPage("settings")}
-              size="icon-sm"
-              variant="ghost"
-            >
-              <Settings className="size-4" />
-            </Button>
-          }
-        />
+        <TitleBar />
 
         {page === "settings" ? (
           <SettingsPage onClose={() => setPage("home")} />
         ) : (
-          <div className="mx-1 mb-1 flex flex-1 overflow-hidden rounded-xl border-2 border-border bg-background">
-            <HomePage />
-          </div>
+          <>
+            <div className="mx-1 flex flex-1 overflow-hidden rounded-xl border-2 border-border bg-background">
+              <HomePage />
+            </div>
+
+            <div className="mx-1 mb-1 flex h-12 items-center justify-end px-4">
+              <Button
+                aria-label="Open settings"
+                onClick={() => setPage("settings")}
+                size="icon-sm"
+                variant="ghost"
+              >
+                <Settings className="size-4" />
+              </Button>
+            </div>
+          </>
         )}
 
         <Toaster />
