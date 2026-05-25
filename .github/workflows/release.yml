@@ -19,19 +19,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: macos-latest
+          - platform: blacksmith-4vcpu-macos-15-arm
             target: aarch64-apple-darwin
             args: --target aarch64-apple-darwin
             name: macOS (Apple Silicon)
-          - platform: macos-latest
+          - platform: blacksmith-4vcpu-macos-15-arm
             target: x86_64-apple-darwin
             args: --target x86_64-apple-darwin
             name: macOS (Intel)
-          - platform: ubuntu-22.04
+          - platform: blacksmith-4vcpu-ubuntu-2204
             target: ""
             args: ""
             name: Linux
-          - platform: windows-latest
+          - platform: blacksmith-4vcpu-windows-2022
             target: ""
             args: ""
             name: Windows
@@ -63,10 +63,10 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.platform == 'blacksmith-4vcpu-macos-15-arm' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Install Linux dependencies
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'blacksmith-4vcpu-ubuntu-2204'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -213,6 +213,7 @@ jobs:
           else
             BUNDLE_DIR="src-tauri/target/release/bundle"
           fi
+
 
           if [ -d "$BUNDLE_DIR" ]; then
             cd "$BUNDLE_DIR"
