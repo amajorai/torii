@@ -554,11 +554,7 @@ export function OnboardingPage({ isLicenseActive, onComplete }: OnboardingPagePr
         className="relative flex h-10 shrink-0 items-center pr-[148px] pl-4"
         data-tauri-drag-region=""
       >
-        <DoorOpen
-          className="fill-foreground text-foreground"
-          size={16}
-          strokeWidth={3}
-        />
+        <span className="text-base leading-none">⛩️</span>
       </div>
 
       {/* Content card */}
