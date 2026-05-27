@@ -87,7 +87,7 @@ export function EmbeddingsPage({ onOpenApiKeyDialog }: EmbeddingsPageProps) {
   }
 
   return (
-    <div className="flex h-full flex-col gap-4 overflow-y-auto p-4">
+    <div className="flex h-full w-full flex-col gap-4 overflow-y-auto p-4">
       {/* Header */}
       <div className="flex items-center gap-2">
         <Brain className="size-5 text-muted-foreground" />

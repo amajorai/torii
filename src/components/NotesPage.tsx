@@ -83,7 +83,7 @@ export function NotesPage() {
   };
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full w-full">
       {/* Sidebar */}
       <div className="flex w-56 flex-col border-r border-border">
         {/* View toggle */}

@@ -13,6 +13,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useTrashStore } from "@/stores/use-trash-store";
+import { useGalleryStore } from "@/stores/use-gallery-store";
 
 export type ViewMode = "grid-sm" | "grid-md" | "grid-lg" | "list";
 
@@ -21,7 +22,6 @@ interface GalleryToolbarProps {
   onSearchChange: (q: string) => void;
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
-  onAddFiles: (paths: string[]) => void;
   onTrashClick: () => void;
   onSettingsClick: () => void;
 }
@@ -38,19 +38,19 @@ export function GalleryToolbar({
   onSearchChange,
   viewMode,
   onViewModeChange,
-  onAddFiles,
   onTrashClick,
   onSettingsClick,
 }: GalleryToolbarProps) {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const trashItems = useTrashStore((s) => s.trashItems);
+  const addFiles = useGalleryStore((s) => s.addFiles);
 
   const handlePickFiles = async () => {
     const result = await open({ multiple: true });
     if (!result) return;
     const paths = Array.isArray(result) ? result : [result];
-    onAddFiles(paths);
+    addFiles(paths);
   };
 
   return (

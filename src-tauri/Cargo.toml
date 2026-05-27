@@ -1,6 +1,6 @@
 [package]
 name = "torii"
-version = "0.3.0"
+version = "0.3.1"
 description = "Torii"
 authors = ["Jia Wei Ng"]
 edition = "2021"

@@ -88,7 +88,7 @@ export function ChatPage({ onOpenApiKeyDialog }: ChatPageProps) {
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full w-full flex-col">
       {/* Messages */}
       <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4">
         {history.length === 0 && !isStreaming && (

@@ -12,8 +12,7 @@ import { ApiKeyDialog } from "@/components/ApiKeyDialog";
 import { ChatPage } from "@/components/ChatPage";
 import { CommandPalette } from "@/components/CommandPalette";
 import { EmbeddingsPage } from "@/components/EmbeddingsPage";
-import { GalleryToolbar } from "@/components/GalleryToolbar";
-import type { ViewMode } from "@/components/GalleryToolbar";
+import { GalleryToolbar, type ViewMode } from "@/components/GalleryToolbar";
 import { HomePage } from "@/components/HomePage";
 import { LicenseActivation } from "@/components/LicenseActivation";
 import { NotesPage } from "@/components/NotesPage";
@@ -32,8 +31,6 @@ import { cn } from "@/lib/utils";
 
 export type Page = "home" | "notes" | "chat" | "embeddings" | "trash" | "settings";
 
-export type GalleryFile = { id: string; path: string; name: string };
-
 function WindowBoundsManager() {
   useWindowBounds();
   return null;
@@ -51,7 +48,6 @@ export default function App() {
   const [page, setPage] = useState<Page>("home");
   const [cmdOpen, setCmdOpen] = useState(false);
   const [apiKeyOpen, setApiKeyOpen] = useState(false);
-  const [galleryFiles, setGalleryFiles] = useState<GalleryFile[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid-sm");
 
@@ -63,19 +59,6 @@ export default function App() {
     loadStoredLicense();
     loadSettings();
   }, [loadStoredLicense, loadSettings]);
-
-  const handleAddFiles = (paths: string[]) => {
-    const incoming = paths.map((path) => ({
-      id: crypto.randomUUID(),
-      path,
-      name: path.split(/[\\/]/).pop() ?? path,
-    }));
-    setGalleryFiles((prev) => [...prev, ...incoming]);
-  };
-
-  const handleRemoveFiles = (ids: Set<string>) => {
-    setGalleryFiles((prev) => prev.filter((f) => !ids.has(f.id)));
-  };
 
   const navCenter = (
     <div className="flex items-center gap-0.5">
@@ -142,13 +125,7 @@ export default function App() {
           <>
             <div className="mx-1 flex flex-1 overflow-hidden rounded-xl border-2 border-border bg-background">
               {page === "home" && (
-                <HomePage
-                  files={galleryFiles}
-                  onAddFiles={handleAddFiles}
-                  onRemoveFiles={handleRemoveFiles}
-                  searchQuery={searchQuery}
-                  viewMode={viewMode}
-                />
+                <HomePage searchQuery={searchQuery} viewMode={viewMode} />
               )}
               {page === "notes" && <NotesPage />}
               {page === "chat" && (
@@ -162,7 +139,6 @@ export default function App() {
 
             {page === "home" ? (
               <GalleryToolbar
-                onAddFiles={handleAddFiles}
                 onSearchChange={setSearchQuery}
                 onSettingsClick={() => setPage("settings")}
                 onTrashClick={() => setPage("trash")}
