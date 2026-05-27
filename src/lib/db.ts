@@ -5,7 +5,7 @@ let db: Database | null = null;
 let dbInitPromise: Promise<Database> | null = null;
 
 // Bump this whenever you add a new migration below.
-const TARGET_SCHEMA_VERSION = 1;
+const TARGET_SCHEMA_VERSION = 2;
 
 type MigrationFn = (database: Database) => Promise<void>;
 
@@ -38,6 +38,49 @@ const migrations: Record<number, MigrationFn> = {
       CREATE TABLE IF NOT EXISTS app_metadata (
         key TEXT PRIMARY KEY,
         value TEXT
+      )
+    `);
+  },
+  2: async (database) => {
+    // Notes - the primary demo entity for the boilerplate
+    await database.execute(`
+      CREATE TABLE IF NOT EXISTS notes (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL DEFAULT '',
+        content TEXT NOT NULL DEFAULT '',
+        createdAt INTEGER NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        archivedAt INTEGER,
+        archiveFolderId TEXT
+      )
+    `);
+    await database.execute(
+      "CREATE INDEX IF NOT EXISTS notes_archivedAt ON notes(archivedAt)"
+    );
+
+    // Trash table - stores deleted notes (auto-purged after 30 days)
+    await database.execute(`
+      CREATE TABLE IF NOT EXISTS trash (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL DEFAULT '',
+        content TEXT NOT NULL DEFAULT '',
+        deletedAt INTEGER NOT NULL,
+        originalCreatedAt INTEGER NOT NULL,
+        originalUpdatedAt INTEGER NOT NULL
+      )
+    `);
+    await database.execute(
+      "CREATE INDEX IF NOT EXISTS trash_deletedAt ON trash(deletedAt)"
+    );
+
+    // Archive folders for organizing archived notes
+    await database.execute(`
+      CREATE TABLE IF NOT EXISTS archive_folders (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        createdAt INTEGER NOT NULL,
+        sortOrder INTEGER NOT NULL DEFAULT 0,
+        color TEXT
       )
     `);
   },

@@ -1,6 +1,6 @@
 [package]
 name = "torii"
-version = "0.2.1"
+version = "0.3.0"
 description = "Torii"
 authors = ["Jia Wei Ng"]
 edition = "2021"
@@ -26,6 +26,7 @@ tauri-plugin-autostart = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 rusqlite = { version = "0.31", features = ["bundled"] }
+sqlite-vec = "0.1"
 
 # Secure Storage Dependencies
 aes-gcm = "0.10"

@@ -1,14 +1,13 @@
+use std::sync::Mutex;
 use tauri::Manager;
 use tauri_plugin_decorum::WebviewWindowExt;
 
-// Declare modules
+pub mod embeddings;
 pub mod secure_storage;
 pub mod security;
 
 #[tauri::command]
 async fn migrate_app_data(_app: tauri::AppHandle) -> Result<bool, String> {
-    // Stub: add any one-time data migration logic here.
-    // Return true if migration was performed, false if already up to date.
     Ok(false)
 }
 
@@ -51,12 +50,15 @@ pub fn run() {
                 main_window.set_traffic_lights_inset(12.0, 16.0).unwrap();
             }
 
-            // Initialize Secure Storage
             let app_data_dir = app.path().app_data_dir().unwrap();
             let app_name = app.package_info().name.clone();
 
             secure_storage::init_secure_storage(&app_name, &app_data_dir)
                 .expect("Failed to initialize secure storage");
+
+            let embedding_conn = embeddings::init_embedding_db(&app_data_dir)
+                .expect("Failed to initialize embeddings DB");
+            app.manage(embeddings::EmbeddingDb(Mutex::new(embedding_conn)));
 
             Ok(())
         })
@@ -71,6 +73,13 @@ pub fn run() {
             secure_storage::secure_storage_clear_all,
             fetch_as_base64,
             migrate_app_data,
+            embeddings::store_embedding,
+            embeddings::mark_embedding_failed,
+            embeddings::delete_embedding,
+            embeddings::search_similar_embeddings,
+            embeddings::get_embedded_record_ids,
+            embeddings::get_embedding_stats,
+            embeddings::reset_failed_embeddings,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
