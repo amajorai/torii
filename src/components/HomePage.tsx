@@ -3,9 +3,13 @@ import { listen } from "@tauri-apps/api/event";
 import { FolderPlus, Upload, X } from "lucide-react";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
+import { SelectionToolbar } from "@/components/SelectionToolbar";
+import { useDragSelection } from "@/hooks/use-drag-selection";
+import * as sounds from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 import { useGalleryStore } from "@/stores/use-gallery-store";
 import type { GalleryFile } from "@/stores/use-gallery-store";
+import { useSelectionStore } from "@/stores/use-selection-store";
 import type { ViewMode } from "@/components/GalleryToolbar";
 
 const IMAGE_EXTS = new Set(["jpg", "jpeg", "png", "gif", "webp", "bmp", "avif", "tiff"]);
@@ -122,14 +126,33 @@ export function HomePage({ searchQuery, viewMode }: HomePageProps) {
   const { files, folders, addFiles, removeFiles, addFolder, deleteFolder, moveFilesToFolder } =
     useGalleryStore();
 
+  const isSelectionMode = useSelectionStore((s) => s.isSelectionMode);
+  const selectedIds = useSelectionStore((s) => s.selectedIds);
+  const toggleSelection = useSelectionStore((s) => s.toggleSelection);
+  const toggleSelectionMode = useSelectionStore((s) => s.toggleSelectionMode);
+  const selectAll = useSelectionStore((s) => s.selectAll);
+  const clearSelection = useSelectionStore((s) => s.clearSelection);
+  const exitSelectionMode = useSelectionStore((s) => s.exitSelectionMode);
+
   const [isDragOver, setIsDragOver] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [newFolderName, setNewFolderName] = useState("");
   const [showNewFolderInput, setShowNewFolderInput] = useState(false);
   const newFolderInputRef = useRef<HTMLInputElement>(null);
-  const justEnteredSelectionMode = useRef(false);
+
+  const {
+    selectionBox,
+    containerRef,
+    scrollerRef,
+    handleMouseDown,
+    justEnteredSelectionMode,
+  } = useDragSelection({
+    dataAttribute: "data-file-id",
+    isSelectionMode,
+    onEnableSelectionMode: toggleSelectionMode,
+    onSelectionChange: (ids) => selectAll(ids),
+    onClearSelection: () => clearSelection(),
+  });
 
   useEffect(() => {
     const dropped = listen<{ paths: string[] }>("tauri://drag-drop", (e) => {
@@ -171,32 +194,24 @@ export function HomePage({ searchQuery, viewMode }: HomePageProps) {
 
   const isList = viewMode === "list";
 
-  const toggleSelect = (id: string) => {
-    if (!isSelectionMode) {
-      justEnteredSelectionMode.current = true;
-      setIsSelectionMode(true);
+  const handleCardClick = (id: string) => {
+    if (justEnteredSelectionMode.current) {
+      justEnteredSelectionMode.current = false;
+      return;
     }
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const clearSelection = () => {
-    setSelectedIds(new Set());
-    setIsSelectionMode(false);
+    if (!isSelectionMode) toggleSelectionMode();
+    sounds.select();
+    toggleSelection(id);
   };
 
   const removeSelected = () => {
     removeFiles(selectedIds);
-    clearSelection();
+    exitSelectionMode();
   };
 
   const handleMoveToFolder = (folderId: string | null) => {
     moveFilesToFolder(selectedIds, folderId);
-    clearSelection();
+    exitSelectionMode();
   };
 
   const handleAddFolder = () => {
@@ -324,62 +339,39 @@ export function HomePage({ searchQuery, viewMode }: HomePageProps) {
         )}
       </div>
 
-      {/* Selection action bar */}
-      {isSelectionMode && (
-        <div className="flex items-center gap-2 border-b border-border bg-accent/50 px-3 py-1.5">
-          <span className="text-xs text-muted-foreground">{selectedIds.size} selected</span>
-          {selectedIds.size > 0 && (
-            <>
-              <button
-                className="rounded px-2 py-0.5 text-xs text-destructive transition-colors hover:bg-destructive/10"
-                onClick={removeSelected}
-                type="button"
-              >
-                Remove
-              </button>
-              {folders.length > 0 && (
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground text-xs">Move to:</span>
-                  {selectedFolderId !== null && (
-                    <button
-                      className="rounded px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                      onClick={() => handleMoveToFolder(null)}
-                      type="button"
-                    >
-                      All
-                    </button>
-                  )}
-                  {folders.map((f) => (
-                    <button
-                      className="rounded px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                      key={f.id}
-                      onClick={() => handleMoveToFolder(f.id)}
-                      type="button"
-                    >
-                      {f.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-          <button
-            className="ml-auto rounded px-2 py-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
-            onClick={clearSelection}
-            type="button"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
-
       {/* Gallery */}
       <div
         className={cn(
-          "relative flex flex-1 flex-col overflow-hidden transition-colors",
+          "relative flex flex-1 select-none flex-col overflow-hidden transition-colors",
           isDragOver && "bg-primary/5"
         )}
+        onClick={(e) => {
+          if (justEnteredSelectionMode.current) {
+            justEnteredSelectionMode.current = false;
+            return;
+          }
+          if (
+            isSelectionMode &&
+            !(e.target as HTMLElement).closest("[data-file-id]")
+          ) {
+            exitSelectionMode();
+          }
+        }}
+        onMouseDown={handleMouseDown}
+        ref={containerRef}
       >
+        {selectionBox && (
+          <div
+            className="pointer-events-none absolute z-40 border border-primary/50 bg-primary/20"
+            style={{
+              left: selectionBox.x,
+              top: selectionBox.y,
+              width: selectionBox.width,
+              height: selectionBox.height,
+            }}
+          />
+        )}
+
         {filteredFiles.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-4">
             <div className="text-muted-foreground opacity-40">
@@ -405,18 +397,15 @@ export function HomePage({ searchQuery, viewMode }: HomePageProps) {
                 <FileCard
                   file={file}
                   isList={isList}
-                  onClick={() => {
-                    if (justEnteredSelectionMode.current) {
-                      justEnteredSelectionMode.current = false;
-                      return;
-                    }
-                    toggleSelect(file.id);
-                  }}
+                  onClick={() => handleCardClick(file.id)}
                   selected={selectedIds.has(file.id)}
                 />
               );
             }}
             overscan={400}
+            scrollerRef={(ref) => {
+              scrollerRef.current = ref as HTMLDivElement;
+            }}
             style={{ flex: 1, height: "100%" }}
             totalCount={filteredFiles.length}
           />
@@ -428,6 +417,40 @@ export function HomePage({ searchQuery, viewMode }: HomePageProps) {
             <Upload className="size-8 animate-bounce text-primary" strokeWidth={1.5} />
             <p className="font-medium text-primary text-sm">Release to add files</p>
           </div>
+        )}
+
+        {/* Selection action bar */}
+        {isSelectionMode && selectedIds.size > 0 && (
+          <SelectionToolbar
+            onClearSelection={exitSelectionMode}
+            onDelete={removeSelected}
+            selectedCount={selectedIds.size}
+          >
+            {folders.length > 0 && (
+              <>
+                <span className="px-1 text-muted-foreground text-xs">Move to</span>
+                {selectedFolderId !== null && (
+                  <button
+                    className="rounded px-2 py-0.5 text-muted-foreground text-xs transition-colors hover:text-foreground"
+                    onClick={() => handleMoveToFolder(null)}
+                    type="button"
+                  >
+                    All
+                  </button>
+                )}
+                {folders.map((f) => (
+                  <button
+                    className="rounded px-2 py-0.5 text-muted-foreground text-xs transition-colors hover:text-foreground"
+                    key={f.id}
+                    onClick={() => handleMoveToFolder(f.id)}
+                    type="button"
+                  >
+                    {f.name}
+                  </button>
+                ))}
+              </>
+            )}
+          </SelectionToolbar>
         )}
       </div>
     </div>

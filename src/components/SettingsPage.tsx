@@ -39,6 +39,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { sileo } from "sileo";
+import { AgentsSettings } from "@/components/AgentsSettings";
 import {
   checkForUpdate,
   downloadAndInstall,
@@ -59,10 +60,17 @@ interface SettingsPageProps {
   onClose: () => void;
 }
 
-type SettingsTab = "general" | "license" | "storage" | "updates" | "privacy";
+type SettingsTab =
+  | "general"
+  | "agents"
+  | "license"
+  | "storage"
+  | "updates"
+  | "privacy";
 
 const TABS: { value: SettingsTab; label: string }[] = [
   { value: "general", label: "General" },
+  { value: "agents", label: "AI Agents" },
   { value: "license", label: "License" },
   { value: "storage", label: "Storage" },
   { value: "updates", label: "Updates" },
@@ -81,6 +89,7 @@ export function SettingsPage({ onClose }: SettingsPageProps) {
         <div className="flex-1 overflow-auto px-6 pt-10 pb-6">
           <div className="mx-auto max-w-2xl">
             {activeTab === "general" && <GeneralSettings />}
+            {activeTab === "agents" && <AgentsSettings />}
             {activeTab === "license" && <LicenseSettings />}
             {activeTab === "storage" && (
               <StorageSettings onTransferChange={setIsTransferring} />
@@ -239,10 +248,17 @@ function ExperimentalSettings() {
 }
 
 function SoundsSettings() {
-  const { soundsEnabled, setSoundsEnabled } = useAppSettingsStore();
+  const {
+    soundsEnabled,
+    setSoundsEnabled,
+    seasonalEffectsEnabled,
+    setSeasonalEffectsEnabled,
+  } = useAppSettingsStore();
   return (
     <div className="space-y-4">
-      <p className="pl-2 font-medium text-muted-foreground text-xs">Sound</p>
+      <p className="pl-2 font-medium text-muted-foreground text-xs">
+        Sound &amp; Effects
+      </p>
       <div className="space-y-2">
         <SettingRow
           description="Play sounds for clicks, dialogs, switches, and other interactions."
@@ -253,6 +269,18 @@ function SoundsSettings() {
             onCheckedChange={(v) => {
               v ? sounds.switchOn() : sounds.switchOff();
               setSoundsEnabled(v);
+            }}
+          />
+        </SettingRow>
+        <SettingRow
+          description="Show festive particle effects in the title bar during holidays."
+          title="Seasonal effects"
+        >
+          <Switch
+            checked={seasonalEffectsEnabled}
+            onCheckedChange={(v) => {
+              v ? sounds.switchOn() : sounds.switchOff();
+              setSeasonalEffectsEnabled(v);
             }}
           />
         </SettingRow>

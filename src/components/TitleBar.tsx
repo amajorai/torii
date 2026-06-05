@@ -8,6 +8,8 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import * as sounds from "@/lib/sounds";
 import { cn } from "@/lib/utils";
+import { useAppSettingsStore } from "@/stores/use-app-settings-store";
+import { getCurrentSeason, SnowfallBackground } from "@/components/snow-flakes";
 
 interface TitleBarProps {
   title?: ReactNode;
@@ -24,7 +26,12 @@ export function TitleBar({
   showIcon = true,
   className,
 }: TitleBarProps) {
+  const seasonalEffectsEnabled = useAppSettingsStore(
+    (s) => s.seasonalEffectsEnabled
+  );
   const [bounceKey, setBounceKey] = useState(0);
+
+  const activeSeason = seasonalEffectsEnabled ? getCurrentSeason() : null;
 
   const handleLogoClick = () => {
     sounds.click();
@@ -56,6 +63,23 @@ export function TitleBar({
           className="absolute inset-0 z-0 bg-background/50 backdrop-blur-md"
           data-tauri-drag-region
         />
+
+        {activeSeason && (
+          <SnowfallBackground
+            className="pointer-events-none h-[50px]"
+            color={activeSeason.color}
+            count={30}
+            emoji={activeSeason.emoji}
+            fadeBottom={true}
+            maxOpacity={1}
+            maxSize={activeSeason.maxSize ?? 30}
+            minOpacity={0}
+            minSize={activeSeason.minSize ?? 1}
+            speed={1}
+            wind={true}
+            zIndex={50}
+          />
+        )}
 
         <div className="relative z-[1001] flex items-center gap-3">
           {showIcon && (

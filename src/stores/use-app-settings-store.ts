@@ -11,8 +11,29 @@ const REMEMBER_WINDOW_BOUNDS_FIELD = "remember_window_bounds";
 const ONBOARDING_COMPLETED_FIELD = "onboarding_completed";
 const EXPERIMENTAL_FEATURES_FIELD = "experimental_features_enabled";
 const SOUNDS_ENABLED_FIELD = "sounds_enabled";
+const SEASONAL_EFFECTS_FIELD = "seasonal_effects_enabled";
+const ACP_AGENTS_FIELD = "acp_agents";
+const ACP_TEXT_GEN_AGENT_ID_FIELD = "acp_text_gen_agent_id";
 
 export type AppTheme = "light" | "dark" | "system";
+
+export interface AcpAgentEnvVar {
+  key: string;
+  value: string;
+}
+
+/**
+ * A configured ACP-compatible agent CLI (e.g. claude-code, gemini, codex). The
+ * in-app assistant spawns `command args...` with `envVars` and talks ACP to it
+ * over stdio. Configure these in Settings → AI Agents.
+ */
+export interface AcpAgent {
+  id: string;
+  name: string;
+  command: string;
+  args: string[];
+  envVars: AcpAgentEnvVar[];
+}
 
 interface AppSettingsState {
   theme: AppTheme;
@@ -23,6 +44,9 @@ interface AppSettingsState {
   onboardingCompleted: boolean;
   experimentalFeaturesEnabled: boolean;
   soundsEnabled: boolean;
+  seasonalEffectsEnabled: boolean;
+  acpAgents: AcpAgent[];
+  acpTextGenAgentId: string | null;
   isInitialLoadDone: boolean;
 
   // Actions
@@ -34,6 +58,9 @@ interface AppSettingsState {
   setOnboardingCompleted: (completed: boolean) => Promise<void>;
   setExperimentalFeaturesEnabled: (enabled: boolean) => Promise<void>;
   setSoundsEnabled: (enabled: boolean) => Promise<void>;
+  setSeasonalEffectsEnabled: (enabled: boolean) => Promise<void>;
+  setAcpAgents: (agents: AcpAgent[]) => Promise<void>;
+  setAcpTextGenAgentId: (id: string | null) => Promise<void>;
   loadSettings: () => Promise<void>;
 }
 
@@ -46,6 +73,9 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, _get) => ({
   onboardingCompleted: false,
   experimentalFeaturesEnabled: false,
   soundsEnabled: true,
+  seasonalEffectsEnabled: true,
+  acpAgents: [],
+  acpTextGenAgentId: null,
   isInitialLoadDone: false,
 
   setTheme: async (theme: AppTheme) => {
@@ -191,6 +221,54 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, _get) => ({
     }
   },
 
+  setSeasonalEffectsEnabled: async (enabled: boolean) => {
+    try {
+      const store = await load(SETTINGS_STORE_NAME, {
+        defaults: {},
+        autoSave: true,
+      });
+      await store.set(SEASONAL_EFFECTS_FIELD, enabled);
+      await store.save();
+      set({ seasonalEffectsEnabled: enabled });
+    } catch (error) {
+      logger.error(
+        { err: error },
+        "[Settings] Failed to save setting: seasonalEffectsEnabled"
+      );
+    }
+  },
+
+  setAcpAgents: async (agents: AcpAgent[]) => {
+    try {
+      const store = await load(SETTINGS_STORE_NAME, {
+        defaults: {},
+        autoSave: true,
+      });
+      await store.set(ACP_AGENTS_FIELD, agents);
+      await store.save();
+      set({ acpAgents: agents });
+    } catch (error) {
+      logger.error({ err: error }, "[Settings] Failed to save setting: acpAgents");
+    }
+  },
+
+  setAcpTextGenAgentId: async (id: string | null) => {
+    try {
+      const store = await load(SETTINGS_STORE_NAME, {
+        defaults: {},
+        autoSave: true,
+      });
+      await store.set(ACP_TEXT_GEN_AGENT_ID_FIELD, id);
+      await store.save();
+      set({ acpTextGenAgentId: id });
+    } catch (error) {
+      logger.error(
+        { err: error },
+        "[Settings] Failed to save setting: acpTextGenAgentId"
+      );
+    }
+  },
+
   loadSettings: async () => {
     try {
       logger.info("[Settings] Loading app settings...");
@@ -216,6 +294,13 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, _get) => ({
         EXPERIMENTAL_FEATURES_FIELD
       );
       const soundsEnabled = await store.get<boolean>(SOUNDS_ENABLED_FIELD);
+      const seasonalEffectsEnabled = await store.get<boolean>(
+        SEASONAL_EFFECTS_FIELD
+      );
+      const acpAgents = await store.get<AcpAgent[]>(ACP_AGENTS_FIELD);
+      const acpTextGenAgentId = await store.get<string | null>(
+        ACP_TEXT_GEN_AGENT_ID_FIELD
+      );
 
       const finalTheme = theme ?? "dark";
 
@@ -228,6 +313,9 @@ export const useAppSettingsStore = create<AppSettingsState>()((set, _get) => ({
         onboardingCompleted: onboardingCompleted ?? false,
         experimentalFeaturesEnabled: experimentalFeaturesEnabled ?? false,
         soundsEnabled: soundsEnabled ?? true,
+        seasonalEffectsEnabled: seasonalEffectsEnabled ?? true,
+        acpAgents: acpAgents ?? [],
+        acpTextGenAgentId: acpTextGenAgentId ?? null,
         isInitialLoadDone: true,
       });
 

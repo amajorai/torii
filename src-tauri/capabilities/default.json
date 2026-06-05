@@ -3,6 +3,7 @@
   "description": "enables the default permissions",
   "windows": ["main"],
   "permissions": [
+    "mcp-bridge:default",
     "core:default",
     "core:window:allow-close",
     "core:window:allow-center",

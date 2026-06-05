@@ -2,6 +2,7 @@ use std::sync::Mutex;
 use tauri::Manager;
 use tauri_plugin_decorum::WebviewWindowExt;
 
+pub mod acp;
 pub mod embeddings;
 pub mod secure_storage;
 pub mod security;
@@ -28,7 +29,7 @@ async fn fetch_as_base64(url: String) -> Result<String, String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_decorum::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
@@ -40,7 +41,14 @@ pub fn run() {
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             None,
-        ))
+        ));
+
+    // Debug-only MCP bridge for automated UI verification. Never ships in
+    // release builds.
+    #[cfg(debug_assertions)]
+    let builder = builder.plugin(tauri_plugin_mcp_bridge::init());
+
+    builder
         .setup(|app| {
             let main_window = app.get_webview_window("main").unwrap();
             main_window.create_overlay_titlebar().unwrap();
@@ -59,6 +67,8 @@ pub fn run() {
             let embedding_conn = embeddings::init_embedding_db(&app_data_dir)
                 .expect("Failed to initialize embeddings DB");
             app.manage(embeddings::EmbeddingDb(Mutex::new(embedding_conn)));
+
+            app.manage(acp::AcpState::new());
 
             Ok(())
         })
@@ -80,6 +90,8 @@ pub fn run() {
             embeddings::get_embedded_record_ids,
             embeddings::get_embedding_stats,
             embeddings::reset_failed_embeddings,
+            acp::acp_prompt,
+            acp::acp_tool_result,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

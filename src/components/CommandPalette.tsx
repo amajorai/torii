@@ -1,6 +1,7 @@
 import { Command } from "cmdk";
 import {
   ArchiveIcon,
+  BotIcon,
   BrainIcon,
   FileTextIcon,
   Loader2Icon,
@@ -133,6 +134,14 @@ export function CommandPalette({ open, onOpenChange, onPageChange }: CommandPale
                 value="go-chat"
               >
                 AI Chat
+              </Item>
+              <Item
+                icon={<BotIcon />}
+                keywords={["assistant", "agent", "acp", "claude", "ai"]}
+                onSelect={() => run(() => onPageChange("agent"))}
+                value="go-agent"
+              >
+                Assistant
               </Item>
               <Item
                 icon={<BrainIcon />}
