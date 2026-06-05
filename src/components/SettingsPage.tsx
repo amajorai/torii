@@ -670,6 +670,7 @@ function StorageSettings({
 }: {
   onTransferChange: (active: boolean) => void;
 }) {
+  const { isValidated, openLicenseGate } = useLicenseStore();
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [exportPhase, setExportPhase] = useState("Preparing…");
@@ -1004,6 +1005,7 @@ function StorageSettings({
               className="relative overflow-hidden"
               disabled={busy}
               onClick={() => {
+                if (!isValidated) { openLicenseGate(); return; }
                 sounds.download();
                 handleExport();
               }}
@@ -1042,6 +1044,7 @@ function StorageSettings({
               className="relative overflow-hidden"
               disabled={busy}
               onClick={() => {
+                if (!isValidated) { openLicenseGate(); return; }
                 sounds.click();
                 handlePickImport();
               }}

@@ -45,7 +45,7 @@ export default function App() {
   const activeTab = tabs.find((t) => t.id === activeTabId);
   const page: Page = activeTab?.page ?? "home";
 
-  const { isValidated, isValidating, loadStoredLicense } = useLicenseStore();
+  const { isValidated, loadStoredLicense, gateOpen, closeLicenseGate } = useLicenseStore();
   const { loadSettings, isInitialLoadDone, onboardingCompleted, setOnboardingCompleted } =
     useAppSettingsStore();
 
@@ -62,7 +62,7 @@ export default function App() {
   // Handle tool calls from ACP agents (no-op until app tools are registered).
   useAcpToolRunner();
 
-  if (!isInitialLoadDone || (isValidating && !isValidated)) {
+  if (!isInitialLoadDone) {
     return (
       <div className="flex h-screen items-center justify-center bg-muted">
         <div className="flex flex-col items-center gap-4">
@@ -76,19 +76,7 @@ export default function App() {
   if (!onboardingCompleted) {
     return (
       <ThemeProvider>
-        <OnboardingPage
-          isLicenseActive={isValidated}
-          onComplete={() => setOnboardingCompleted(true)}
-        />
-        <Toaster />
-      </ThemeProvider>
-    );
-  }
-
-  if (!isValidated) {
-    return (
-      <ThemeProvider>
-        <LicenseActivation />
+        <OnboardingPage onComplete={() => setOnboardingCompleted(true)} />
         <Toaster />
       </ThemeProvider>
     );
@@ -156,6 +144,12 @@ export default function App() {
         <Toaster />
         <VersionGateModal />
         <WindowBoundsManager />
+
+        {gateOpen && !isValidated && (
+          <div className="fixed inset-0 z-[1100]">
+            <LicenseActivation onBack={closeLicenseGate} />
+          </div>
+        )}
 
         <CommandPalette
           onOpenChange={setCmdOpen}

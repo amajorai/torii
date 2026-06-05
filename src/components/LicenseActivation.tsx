@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Toaster } from "@/components/ui/sonner";
 import {
   ArrowLeft,
   Check,
@@ -69,8 +68,6 @@ export function LicenseActivation({ onBack }: { onBack?: () => void }) {
 
   return (
     <div className="flex h-screen flex-col bg-muted">
-      <Toaster />
-
       {/* Hidden Polar embed checkout anchor */}
       <a
         className="hidden"
