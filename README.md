@@ -254,12 +254,12 @@ The updater pulls from a GitHub Releases endpoint. After renaming:
    ```
 
 2. Generate a signing keypair (run once, store the output safely):
-   ```bash
-   bunx tauri signer generate -w ~/.keys/my-app.key -p "" --ci
+   ```powershell
+   bunx tauri signer generate -w "D:\.keys\my-app.key" -p "" --ci
    ```
    This writes two files:
-   - `~/.keys/my-app.key` — private key (never commit this)
-   - `~/.keys/my-app.key.pub` — public key (safe to read, goes in config)
+   - `D:\.keys\my-app.key` — private key (never commit this)
+   - `D:\.keys\my-app.key.pub` — public key (safe to read, goes in config)
 
 3. Copy the public key into `tauri.conf.json`:
    ```json
@@ -271,9 +271,9 @@ The updater pulls from a GitHub Releases endpoint. After renaming:
    ```
 
 4. Add the private key as a GitHub Actions secret:
-   ```bash
-   gh secret set TAURI_SIGNING_PRIVATE_KEY --repo YOUR_ORG/YOUR_REPO \
-     --body "$(cat ~/.keys/my-app.key)"
+   ```powershell
+   gh secret set TAURI_SIGNING_PRIVATE_KEY --repo YOUR_ORG/YOUR_REPO `
+     --body "$(Get-Content -Raw D:\.keys\my-app.key)"
    ```
    Leave `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` unset if you used `-p ""`.
 
